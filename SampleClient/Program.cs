@@ -1,4 +1,5 @@
-﻿using LumiSoft.Net.Codec;
+﻿using System.Diagnostics;
+using LumiSoft.Net.Codec;
 using LumiSoft.Net.UDP;
 using Microsoft.AspNetCore.SignalR.Client;
 using UVSChatMedia.Media.Wave;
@@ -10,33 +11,50 @@ namespace SampleClient
     internal class Program
     {
         private static int m_Codec = 0;
-        private static HubConnection _connection;
+        private static HubConnection m_connection;
         private static WaveOut m_WaveOut;
         private static WaveIn m_WaveIn;
-        private static FileStream m_pRecordStream = null;
+        //private static FileStream m_pRecordStream = null;
 
 
         static async Task Main(string[] args)
         {
-            var connection = new HubConnectionBuilder()
-                .WithUrl("http://localhost:5000/audioHub") // Замените на ваш URL
+            m_connection = new HubConnectionBuilder()
+                .WithUrl("http://localhost:5000/chat") // replace your URL
                 .Build();
 
-            connection.On<byte[]>("ReceiveAudio", audioData =>
+            m_connection.On<byte[]>(nameof(ClientCmd.ReceiveAudio), audioData =>
             {
-               // PlayAudio(audioData);
+                
+                Debug.WriteLine($"Recive fragment {Utils.ByteArrayToHexString(audioData)} frLeg {audioData.Length}");
+                m_PacketReceived(audioData);
+               
             });
 
-            await connection.StartAsync();
+            await m_connection.StartAsync();
 
-            Console.WriteLine("Connection started. Press any key to exit...");
+            #region Show devices
 
-            foreach (WavInDevice device in WaveIn.Devices)
-            {
-                Console.WriteLine($"Name {device.Name} | Channel {device.Channels}");
-            }
+            //TODO : Create choise
+            // WaveIn.Devices
+            //     .ToList()
+            //     .ForEach(device =>
+            //         Console.WriteLine($"In: Name {device.Name}")
+            //     );
 
-            m_pRecordStream = File.Create("D:\\test.wav");
+            // WaveOut.Devices
+            //     .ToList()
+            //     .ForEach(device =>
+            //         Console.WriteLine($"Out: Name {device.Name}")
+            //     );
+            
+
+            #endregion
+
+            Console.WriteLine("Connection started. Wait other user.\r\nPress any key to exit...");
+            await Task.Delay(2000);
+
+            //m_pRecordStream = File.Create($"D:\\test{new Random().Next(1, 10000)}.wav");
 
             m_WaveOut = new WaveOut(WaveOut.Devices[0], 8000, 16, 1);
             m_WaveIn = new WaveIn(WaveIn.Devices[0], 8000, 16, 1, 400);
@@ -60,38 +78,33 @@ namespace SampleClient
                 encodedData = G711.Encode_uLaw(buffer, 0, buffer.Length);
             }
 
-            PacketAudio packet = new PacketAudio();
-            packet.packet = encodedData;
-            packet.offset = 0;
-            packet.count = encodedData.Length;
-
-            _connection.SendAsync("SendAudio", packet);
-            _connection.StopAsync();
-            // We just sent buffer to target end point.
-            //m_pUdpServer.SendPacket(encodedData, 0, encodedData.Length, m_pTargetEP);
+            m_connection.SendAsync(nameof(ServerCmd.SendAudio), encodedData);
+            
         }
 
-        private void m_pUdpServer_PacketReceived(PacketAudio e)
+        //TODO : Change codec as PCMA
+        private static void m_PacketReceived(byte[] e)
         {
             // Decompress data.
             byte[] decodedData = null;
             if (m_Codec == 0)
             {
-                decodedData = G711.Decode_aLaw(e.packet, 0, e.packet.Length);
+                decodedData = G711.Decode_aLaw(e, 0, e.Length);
             }
             else if (m_Codec == 1)
             {
-                decodedData = G711.Decode_uLaw(e.packet, 0, e.packet.Length);
+                decodedData = G711.Decode_uLaw(e, 0, e.Length);
             }
 
             // We just play received packet.
             m_WaveOut.Play(decodedData, 0, decodedData.Length);
 
+            //TODO: ?
             // Record if recoring enabled.
-            if (m_pRecordStream != null)
-            {
-                m_pRecordStream.Write(decodedData, 0, decodedData.Length);
-            }
+            //if (m_pRecordStream != null)
+            //{
+            //    m_pRecordStream.Write(decodedData, 0, decodedData.Length);
+            //}
         }
     }
 }

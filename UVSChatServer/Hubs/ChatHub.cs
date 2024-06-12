@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Channels;
 using UVSMedia.Media;
@@ -19,9 +20,18 @@ namespace UVSChatServer.Hubs
             return base.OnConnectedAsync();
         }
 
-        public async Task SendAudio(PacketAudio audioData)
+        //[HubMethodName(nameof(ServerCmd.SendAudio))]
+        //public async Task SendAudio(PacketAudio audioData)
+        //{
+        //    //Console.WriteLine($"Data={ByteArrayToHexString(audioData.packet ?? new byte[] {0xAA})}\r\nLength={audioData.count}");
+        //    await Clients.Others.SendAsync("ReceiveAudio", audioData);
+        //}
+
+        [HubMethodName(nameof(ServerCmd.SendAudio))]
+        public async Task SendAudio(byte[] audioData)
         {
-            await Clients.Others.SendAsync("ReceiveAudio", audioData);
+            Debug.WriteLine($"Data={Utils.ByteArrayToHexString(audioData)}\r\nLength={audioData.Length}");
+            await Clients.Others.SendAsync(nameof(ClientCmd.ReceiveAudio), audioData);
         }
 
         public ChannelReader<byte[]> UploadStream(ChannelReader<byte[]> stream)
@@ -42,14 +52,5 @@ namespace UVSChatServer.Hubs
             return channel.Reader;
         }
 
-        public static string ByteArrayToHexString(byte[] byteArray)
-        {
-            StringBuilder hexString = new StringBuilder(byteArray.Length * 4);
-            foreach (byte b in byteArray)
-            {
-                hexString.AppendFormat("0x{0:X2} ", b);
-            }
-            return hexString.ToString().Trim();
-        }
     }
 }

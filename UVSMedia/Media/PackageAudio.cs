@@ -11,4 +11,15 @@ namespace UVSMedia.Media
         public int offset;
         public int count;
     }
+
+    public enum ServerCmd
+    {
+        SendAudio,
+
+    }
+
+    public enum ClientCmd
+    {
+        ReceiveAudio
+    }
 }
