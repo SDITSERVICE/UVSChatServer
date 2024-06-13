@@ -20,19 +20,32 @@ namespace UVSChatServer.Hubs
             return base.OnConnectedAsync();
         }
 
-        //[HubMethodName(nameof(ServerCmd.SendAudio))]
-        //public async Task SendAudio(PacketAudio audioData)
-        //{
-        //    //Console.WriteLine($"Data={ByteArrayToHexString(audioData.packet ?? new byte[] {0xAA})}\r\nLength={audioData.count}");
-        //    await Clients.Others.SendAsync("ReceiveAudio", audioData);
-        //}
+       
 
         [HubMethodName(nameof(ServerCmd.SendAudio))]
         public async Task SendAudio(byte[] audioData)
         {
-            Debug.WriteLine($"Data={Utils.ByteArrayToHexString(audioData)}\r\nLength={audioData.Length}");
-            await Clients.Others.SendAsync(nameof(ClientCmd.ReceiveAudio), audioData);
+            Console.WriteLine($"Data={Utils.ByteArrayToHexString(audioData)}\r\nLength={audioData.Length}");
+            //await Clients.Caller.SendAsync(nameof(ClientCmd.ReceiveAudio), audioData); //Отправить всем кто подписан на событие ReciveAudio
+            await Clients.Others.SendAsync(nameof(ClientCmd.ReceiveAudio), audioData); //Отправить всем кто подписан на событие ReciveAudio
         }
+
+        [HubMethodName(nameof(ServerCmd.SendAudioUnity))]
+        public async Task SendAudioUnity(float[] audioData)
+        {
+            //// Открываем файл для записи в бинарном режиме
+            //using (FileStream fs = new FileStream("D:\\test.raw", FileMode.Append, FileAccess.Write))
+            //{
+            //    // Записываем массив байт в файл
+            //    fs.Write(ConvertFloatArrayToByteArray(audioData), 0, ConvertFloatArrayToByteArray(audioData).Length);
+            //}
+
+            //Console.WriteLine($"Data={string.Join(" ",audioData)}\r\nLength={audioData.Length}");
+            await Clients.Caller.SendAsync(nameof(ClientCmd.ReceiveAudio), audioData); //Отправить всем кто подписан на событие ReciveAudio
+            //await Clients.Others.SendAsync(nameof(ClientCmd.ReceiveAudio), audioData); //Отправить всем кто подписан на событие ReciveAudio
+        }
+
+       
 
         public ChannelReader<byte[]> UploadStream(ChannelReader<byte[]> stream)
         {

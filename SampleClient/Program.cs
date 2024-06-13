@@ -57,7 +57,7 @@ namespace SampleClient
             //m_pRecordStream = File.Create($"D:\\test{new Random().Next(1, 10000)}.wav");
 
             m_WaveOut = new WaveOut(WaveOut.Devices[0], 8000, 16, 1);
-            m_WaveIn = new WaveIn(WaveIn.Devices[0], 8000, 16, 1, 400);
+            m_WaveIn = new WaveIn(WaveIn.Devices[0], 8000, 16, 1, 256);
             m_WaveIn.BufferFull += new BufferFullHandler(m_pWaveIn_BufferFull);
             m_WaveIn.Start();
 

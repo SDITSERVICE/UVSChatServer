@@ -15,6 +15,7 @@ namespace UVSMedia.Media
     public enum ServerCmd
     {
         SendAudio,
+        SendAudioUnity,
 
     }
 
@@ -22,4 +23,5 @@ namespace UVSMedia.Media
     {
         ReceiveAudio
     }
+
 }

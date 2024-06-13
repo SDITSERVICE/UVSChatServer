@@ -1,5 +1,6 @@
 using UVSChatServer.Components;
 using UVSChatServer.Hubs;
+using UVSMedia.Media;
 
 namespace UVSChatServer
 {
