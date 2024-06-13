@@ -37,7 +37,7 @@ namespace UVSChatServer.Hubs
             //using (FileStream fs = new FileStream("D:\\test.raw", FileMode.Append, FileAccess.Write))
             //{
             //    // Записываем массив байт в файл
-            //    fs.Write(ConvertFloatArrayToByteArray(audioData), 0, ConvertFloatArrayToByteArray(audioData).Length);
+            //    fs.Write(ConvertFloatToByte(audioData), 0, ConvertFloatToByte(audioData).Length);
             //}
 
             //Console.WriteLine($"Data={string.Join(" ",audioData)}\r\nLength={audioData.Length}");
@@ -45,7 +45,18 @@ namespace UVSChatServer.Hubs
             //await Clients.Others.SendAsync(nameof(ClientCmd.ReceiveAudio), audioData); //Отправить всем кто подписан на событие ReciveAudio
         }
 
-       
+        private byte[] ConvertFloatToByte(float[] array)
+        {
+            byte[] byteArr = new byte[array.Length * 4];
+            for (int i = 0; i < array.Length; i++)
+            {
+                var bytes = BitConverter.GetBytes(array[i] * 0x80000000);
+                Array.Copy(bytes, 0, byteArr, i * 4, bytes.Length);
+                if (BitConverter.IsLittleEndian)
+                    Array.Reverse(byteArr, i * 4, 4);
+            }
+            return byteArr;
+        }
 
         public ChannelReader<byte[]> UploadStream(ChannelReader<byte[]> stream)
         {
