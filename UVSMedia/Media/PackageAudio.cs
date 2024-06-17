@@ -16,12 +16,19 @@ namespace UVSMedia.Media
     {
         SendAudio,
         SendAudioUnity,
+        SendAudioFromId,
+        SendAudioFromIds,
+        SendAudioCaller,
+        SendMessage,
 
     }
 
     public enum ClientCmd
     {
-        ReceiveAudio
+        ReceiveAudio,
+        ReceiveAudioFromId,
+        ReceiveAudioFromIds,
+        ReceiveAudioCaller,
     }
 
 }
