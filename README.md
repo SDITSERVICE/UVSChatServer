@@ -14,7 +14,29 @@
 | NO_DATA |Х|NO_DATA|
 | NO_DATA |√ / Х|NO_DATA|
 
+---
 
+Config project
+
+replace config file `appsettings.json`
+
+```json
+{
+  "Kestrel": {
+    "EndPoints": {
+      "Http": {
+        "Url": "http://0.0.0.0:5000"
+      }
+    }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}
+```
 
 ---
 
