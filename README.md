@@ -7,6 +7,12 @@
 
 
 ---
+what is Universal Voice SignalR Chat.
+This is an implementation of voice (and written) chat. The implementation takes place thanks to the SiganalR library, which allows you to use this chat anywhere.
+In order for it to work, we need to receive data from the microphone in the form of a byte array and send it over the network.
+
+In order to try how it works you need to download SampleClient in the RELEASES section
+---
 
 |   Feature    |        Support        |  Comment |
 |----------| :----------------:|------:|
